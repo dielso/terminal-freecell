@@ -7,7 +7,7 @@
 #define KNRM  "\x1B[0m"
 #define KRED  "\x1B[31m"
 
-enum naipes{copas = 0, ouros, paus, espadas};
+int copas = 'C', ouros = 'O', paus = 'P', espadas = 'E', naipes[] = {'C','O','P','E'};
 
 typedef struct t{ // define a estrutura da carta num monte
     int carta[2];
@@ -23,8 +23,6 @@ int cont_naipe[4]={0,0,0,0};
 tCarta *mesa[8];
 tCarta *naipe[4];
 tCarta *temp[4];
-
-
 
 void inicializa() //coloca como vazia todos os montes
 {
@@ -45,18 +43,18 @@ void gerarBaralho() // cria cartas e as distribui entre os montes naipes
 
     for(i=0; i<13; i++) //cria cartas
     {
-        for(j=copas;j<=espadas;j++)
+        for(j=0;j<=4;j++)
         {
             nova = (tCarta*) malloc(sizeof (tCarta));
             nova->carta[0] = i;
-            nova->carta[1] = j;
-            nova->prox = naipe[j]; //guarda a carta no naipe
-            naipe[j] = nova;
+            nova->carta[1] = naipes[j];
+            nova->prox = naipe[naipes[j]]; //guarda a carta no naipe
+            naipe[naipes[j]] = nova;
         }
     }
 }
 
-void embaralha() // distribui aleatoriamente cartas dos naipes para a mesa, e as devolve tambÈm aleatoriamente
+void embaralha() // distribui aleatoriamente cartas dos naipes para a mesa, e as devolve tamb√©m aleatoriamente
 {
     srand(time(NULL));
     int i , j;
@@ -82,7 +80,7 @@ void embaralha() // distribui aleatoriamente cartas dos naipes para a mesa, e as
     j=0;
     ultima = NULL;
 
-    while(1) // repıe aleatoriamente as cartas no naipe
+    while(1) // rep√µe aleatoriamente as cartas no naipe
     {
         if(mesa[j] == NULL){
             j++;
@@ -112,7 +110,7 @@ void distribuirMesa() // chama a embaralha() e distribui as cartas na mesa
 
     j=0;
     n=7;
-    while(n--) //retira as cartas do naipe e as coloca nas mesas atÈ que estejam vazios
+    while(n--) //retira as cartas do naipe e as coloca nas mesas at√© que estejam vazios
     {
         for(i=0;i<8;i++)
         {
@@ -140,8 +138,8 @@ void imprimir() // imprime os montes
     {
         if(temp[i]!= NULL){
             if(temp[i]->carta[1] == ouros || temp[i]->carta[1]==copas)
-                printf(KRED "%d:[%d %c] " KNRM, i+1, temp[i]->carta[0]+1, temp[i]->carta[1]+3);
-            else printf(KRED "%d:[%d %c] " KNRM, i+1, temp[i]->carta[0]+1, temp[i]->carta[1]+3);
+                printf(KRED "%d:[%d %c] " KNRM, i+1, temp[i]->carta[0]+1, temp[i]->carta[1]);
+            else printf(KRED "%d:[%d %c] " KNRM, i+1, temp[i]->carta[0]+1, temp[i]->carta[1]);
         }
         else
             printf("%d:[   ] ", i+1);
@@ -157,8 +155,8 @@ void imprimir() // imprime os montes
 
             if(atual!= NULL){
                 if(atual->carta[1] == ouros || atual->carta[1]==copas)
-                    printf(KRED"%[%2d %c]" KNRM, atual->carta[0]+1, atual->carta[1]+3);
-                else printf("%[%2d %c]", atual->carta[0]+1, atual->carta[1]+3);
+                    printf(KRED"%[%2d %c]" KNRM, atual->carta[0]+1, atual->carta[1]);
+                else printf("%[%2d %c]", atual->carta[0]+1, atual->carta[1]);
             }
             atual = atual->prox;
         }
@@ -175,9 +173,9 @@ void imprimir() // imprime os montes
         {
             if(atual!= NULL){
                 if(atual->carta[1] == ouros || atual->carta[1]==copas)
-                    printf(KRED"%[%2d %c]" KNRM, atual->carta[0]+1, atual->carta[1]+3);
+                    printf(KRED"[%2d %c]" KNRM, atual->carta[0]+1, atual->carta[1]);
                 else
-                    printf("%[%2d %c]", atual->carta[0]+1, atual->carta[1]+3);
+                    printf("[%2d %c]", atual->carta[0]+1, atual->carta[1]);
             }
             atual = atual->prox;
         }
@@ -195,7 +193,7 @@ int moveMesaTemp()
     scanf(" %d %d", &pos1, &pos2);
     pos1--; pos2--;
 
-    if(pos1>7 || pos2>3 || mesa[pos1]==NULL) return 0; //verifica se a entrada È valida
+    if(pos1>7 || pos2>3 || mesa[pos1]==NULL) return 0; //verifica se a entrada √© valida
 
     //tira e bota
 
@@ -219,7 +217,7 @@ int moveTempMesa()
     scanf(" %d %d", &pos1, &pos2);
     pos1--; pos2--;
 
-    if(mesa[pos2] != NULL){ // se a mesa n„o estiver vazia e...
+    if(mesa[pos2] != NULL){ // se a mesa n√£o estiver vazia e...
         if(pos1>3 || pos2>7 || temp[pos1]==NULL || cont_mesa[pos2]==7) return 0; // se a entrada for invalida -> fora
 
         if((temp[pos1]->carta[0]+1 != mesa[pos2]->carta[0]) || // se a carta do temp for maior que a carta da mesa -> fora
@@ -228,7 +226,7 @@ int moveTempMesa()
            ((temp[pos1]->carta[1] == ouros || temp[pos1]->carta[1] == copas)&&
              (mesa[pos2]->carta[1] == paus || mesa[pos2]->carta[1] == espadas)))) return 0; // se os naipes forem de cores iguais -> fora
     }
-    // remove do temp, adiciona ‡ mesa
+    // remove do temp, adiciona √† mesa
     meio = temp[pos1];
     temp[pos1] = temp[pos1]->prox;
 
@@ -252,8 +250,8 @@ int moveMesaNaipe()
     if(pos1>7 || pos2>3 || mesa[pos1]==NULL || cont_naipe[pos2]==13) return 0; // verifica se a entrada foi valida
 
     if(naipe[pos2] != NULL){
-        if((mesa[pos1]->carta[0] != ((naipe[pos2]->carta[0])+1) || //verifica se a carta È a prÛxima
-           mesa[pos1]->carta[1] != naipe[pos2]->carta[1])) return 0; // verifica se o naipe È o mesmo
+        if((mesa[pos1]->carta[0] != ((naipe[pos2]->carta[0])+1) || //verifica se a carta √© a pr√≥xima
+           mesa[pos1]->carta[1] != naipe[pos2]->carta[1])) return 0; // verifica se o naipe √© o mesmo
     }
     else if(mesa[pos1]->carta[0] != 0) return 0;
 
@@ -270,7 +268,7 @@ int moveMesaNaipe()
     return 1;
 }
 
-void destroi() // libera o espaÁo alocado
+void destroi() // libera o espa√ßo alocado
 {
     tCarta *atual, *destroi;
     int i;
@@ -308,7 +306,7 @@ int moveNaipeTemp()
     scanf(" %d %d", &pos1, &pos2);
     pos1--; pos2--;
 
-    if(pos1>3 || pos2>3 || naipe[pos1]==NULL) return 0; //verifica se a entrada È valida
+    if(pos1>3 || pos2>3 || naipe[pos1]==NULL) return 0; //verifica se a entrada √© valida
     //tira e bota
 
     meio = naipe[pos1];
@@ -334,8 +332,8 @@ int moveTempNaipe()
     if(pos1>3 || pos2>3 || temp[pos1]==NULL || cont_naipe[pos2]==13) return 0; // verifica se a entrada foi valida
 
     if(naipe[pos2] != NULL){
-        if((temp[pos1]->carta[0] != ((naipe[pos2]->carta[0])+1) || //verifica se a carta È a prÛxima
-           temp[pos1]->carta[1] != naipe[pos2]->carta[1])) return 0; // verifica se o naipe È o mesmo
+        if((temp[pos1]->carta[0] != ((naipe[pos2]->carta[0])+1) || //verifica se a carta √© a pr√≥xima
+           temp[pos1]->carta[1] != naipe[pos2]->carta[1])) return 0; // verifica se o naipe √© o mesmo
     }
     else if(temp[pos1]->carta[0] != 0) return 0;
 
@@ -360,7 +358,7 @@ int moveNaipeMesa()
     scanf(" %d %d", &pos1, &pos2);
     pos1--; pos2--;
 
-    if(mesa[pos2] != NULL){ // se a mesa n„o estiver vazia e...
+    if(mesa[pos2] != NULL){ // se a mesa n√£o estiver vazia e...
         if(pos1>3 || pos2>7 || naipe[pos1]==NULL || cont_mesa[pos2]==7) return 0; // se a entrada for invalida -> fora
 
         if((naipe[pos1]->carta[0]+1 != mesa[pos2]->carta[0]) || // se a carta do temp for maior que a carta da mesa -> fora
@@ -369,7 +367,7 @@ int moveNaipeMesa()
            ((naipe[pos1]->carta[1] == ouros || naipe[pos1]->carta[1] == copas)&&
              (mesa[pos2]->carta[1] == paus || mesa[pos2]->carta[1] == espadas)))) return 0; // se os naipes forem de cores iguais -> fora
     }
-    // remove do naipe, adiciona ‡ mesa
+    // remove do naipe, adiciona √† mesa
     meio = naipe[pos1];
     naipe[pos1] = naipe[pos1]->prox;
 
@@ -396,14 +394,14 @@ int moveMesaMesa()
 
         if(pos1>7 || pos2>7 || mesa[pos1]==NULL) return 0; // se a entrada for invalida -> fora
 
-        if(mesa[pos2] != NULL){ // se a mesa destino n„o estiver vazia e...
+        if(mesa[pos2] != NULL){ // se a mesa destino n√£o estiver vazia e...
             if((mesa[pos1]->carta[0]+1 != mesa[pos2]->carta[0]) || // se a carta da origem for maior ou igual a carta do destino -> fora
                !(((mesa[pos1]->carta[1] == paus || mesa[pos1]->carta[1] == espadas)&&
                  (mesa[pos2]->carta[1] == copas || mesa[pos2]->carta[1] == ouros))||
                ((mesa[pos1]->carta[1] == ouros || mesa[pos1]->carta[1] == copas)&&
                  (mesa[pos2]->carta[1] == paus || mesa[pos2]->carta[1] == espadas)))) return 0; // se os naipes forem de cores iguais -> fora
         }
-        // remove da mesa origem, adiciona ‡ outra
+        // remove da mesa origem, adiciona √† outra
         meio = mesa[pos1];
         mesa[pos1] = mesa[pos1]->prox;
 
@@ -419,7 +417,7 @@ int moveMesaMesa()
         pos1--; pos2--;
 
         if(pos1>7 || pos2>7 || qtd>cont_mesa[pos1] || mesa[pos1]==NULL) return 0; // se a entrada for invalida -> fora
-        // definir qual È o maior e seu naipe
+        // definir qual √© o maior e seu naipe
 
         maior = mesa[pos1];
         for(i=1; i<qtd;i++){
@@ -431,12 +429,12 @@ int moveMesaMesa()
                  (meio->carta[1] == paus || meio->carta[1] == espadas)))){ // e de naipe diferente
                 maior = meio; // prossegue
             }
-            else return 0; // entrada inv·lida
+            else return 0; // entrada inv√°lida
         }
 
 
 
-        if(mesa[pos2] != NULL){ // se a mesa destino n„o estiver vazia e...
+        if(mesa[pos2] != NULL){ // se a mesa destino n√£o estiver vazia e...
             if((maior->carta[0]+1 != mesa[pos2]->carta[0]) || // se a carta do maior for maior que ou igual a carta da mesa -> fora
                !(((maior->carta[1] == paus || maior->carta[1] == espadas)&&
                  (mesa[pos2]->carta[1] == copas || mesa[pos2]->carta[1] == ouros))||
@@ -447,7 +445,7 @@ int moveMesaMesa()
 
         meio = mesa[pos1];
         mesa[pos1] = maior->prox; // corta a mesa de origem
-        maior->prox = mesa[pos2]; // "cola" o pedaÁo da origem no destino
+        maior->prox = mesa[pos2]; // "cola" o peda√ßo da origem no destino
         mesa[pos2] = meio;  // redefine o topo do destino como o topo anterior da origem
 
         cont_mesa[pos1]-=qtd;
